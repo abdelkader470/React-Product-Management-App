@@ -3,13 +3,12 @@ import Button from "./components/ui/Button";
 import Input from "./components/ui/Input";
 import Modal from "./components/ui/modal";
 import { formInputsList, productList } from "./data";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, FormEvent } from "react";
 import { IProduct } from "./interfaces";
+import { productValidation } from "./validation";
 
 const App = () => {
-  /*---------- STATE---------------*/
-  const [isOpen, setIsOpen] = useState(false);
-  const [product, setProduct] = useState<IProduct>({
+  const defaultProductObj = {
     title: "",
     description: "",
     imageURL: "",
@@ -19,7 +18,10 @@ const App = () => {
       name: "",
       imageURL: "",
     },
-  });
+  };
+  /*---------- STATE---------------*/
+  const [isOpen, setIsOpen] = useState(false);
+  const [product, setProduct] = useState<IProduct>(defaultProductObj);
   /*---------- HANDLER---------------*/
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
@@ -27,13 +29,28 @@ const App = () => {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
   };
+  const onCancel = () => {
+    console.log("cancelled");
+    setProduct(defaultProductObj);
+    closeModal();
+  };
+  const submitHandler = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    const errors = productValidation({
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      imageURL: product.imageURL,
+    });
+    console.log(errors);
+  };
 
   /*---------- RENDER---------------*/
   const renderProductList = productList.map((product) => (
     <ProductCard key={product.id} product={product} />
   ));
   const renderformInputsList = formInputsList.map((input) => (
-    <div className="flex flex-col">
+    <div className="flex flex-col" key={input.id}>
       <label
         className="mb-[2px] text-sm font-medium text-gray-700"
         htmlFor={input.id}
@@ -49,6 +66,7 @@ const App = () => {
       />
     </div>
   ));
+
   return (
     <main className="container ">
       <Button className="bg-indigo-700 hover:bg-indigo-800" onClick={openModal}>
@@ -60,11 +78,16 @@ const App = () => {
       <Modal isOpen={isOpen} closeModal={closeModal} title="ADD A NEW PRODUCT">
         <div className="space-y-3">
           {renderformInputsList}
-          <form className="flex items-center space-x-3">
+          <form
+            className="flex items-center space-x-3"
+            onSubmit={submitHandler}
+          >
             <Button className="bg-indigo-700 hover:bg-indigo-800">
               Submit
             </Button>
-            <Button className="bg-red-700 hover:bg-red-600">Cancel</Button>
+            <Button className="bg-red-700 hover:bg-red-600" onClick={onCancel}>
+              Cancel
+            </Button>
           </form>
         </div>
       </Modal>
