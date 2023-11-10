@@ -1,3 +1,4 @@
+// Importing necessary React components, data, and interfaces
 import ProductCard from "./components/ProductCard";
 import Button from "./components/ui/Button";
 import Input from "./components/ui/Input";
@@ -12,7 +13,10 @@ import { v4 as uuid } from "uuid";
 import Select from "./components/ui/Select";
 import { ProductName } from "./types";
 import toast, { Toaster } from "react-hot-toast";
+
+// Main App component
 const App = () => {
+  // Default product object for initializing state
   const defaultProductObj = {
     title: "",
     description: "",
@@ -24,7 +28,10 @@ const App = () => {
       imageURL: "",
     },
   };
+
   /*---------- STATE---------------*/
+
+  // State variables using the useState hook
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
   const [product, setProduct] = useState<IProduct>(defaultProductObj);
@@ -42,8 +49,12 @@ const App = () => {
   const [selectedCategories, setSelectedCategories] = useState(categories[0]);
   const [isOpenConfirmModal, setIsOpenConfirmModal] = useState(false);
 
+  // Logging the product being edited
   console.log(productToEdit);
+
   /*---------- HANDLER---------------*/
+
+  // Functions for opening and closing different modals
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
   const closeEditModal = () => setIsOpenEditModal(false);
@@ -51,22 +62,27 @@ const App = () => {
   const closeConfirmModal = () => setIsOpenConfirmModal(false);
   const openConfirmModal = () => setIsOpenConfirmModal(true);
 
+  // Input change handlers for adding and editing products
   const onchangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
+
   const onchangeEditHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProductToEdit({ ...productToEdit, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
 
+  // Cancel action for adding a new product
   const onCancel = () => {
     console.log("cancelled");
     setProduct(defaultProductObj);
     closeModal();
   };
+
+  // Function to remove a product
   const removeProductHandler = () => {
     const filtered = products.filter(
       (product) => product.id !== productToEdit.id
@@ -82,6 +98,7 @@ const App = () => {
     });
   };
 
+  // Form submission handlers for adding and editing products
   const submitHandler = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     const { title, description, price, imageURL } = product;
@@ -118,6 +135,7 @@ const App = () => {
       },
     });
   };
+
   const submitEditHandler = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     const { title, description, price, imageURL } = productToEdit;
@@ -154,6 +172,8 @@ const App = () => {
   };
 
   /*---------- RENDER---------------*/
+
+  // Rendering the list of products using the ProductCard component
   const renderProductList = products.map((product, idx) => (
     <ProductCard
       key={product.id}
@@ -165,6 +185,8 @@ const App = () => {
       openConfirmModal={openConfirmModal}
     />
   ));
+
+  // Rendering form input fields dynamically based on formInputsList
   const renderformInputsList = formInputsList.map((input) => (
     <div className="flex flex-col" key={input.id}>
       <label
@@ -183,6 +205,8 @@ const App = () => {
       <ErrorMessage msg={errors[input.name]} />
     </div>
   ));
+
+  // Rendering product color circles
   const renderProductColor = colors.map((color) => (
     <CircleColor
       key={color}
@@ -200,6 +224,8 @@ const App = () => {
       }}
     />
   ));
+
+  // Function to render input fields for editing products with error messages
   const renderProductEditWithErrorMsg = (
     id: string,
     label: string,
@@ -224,8 +250,11 @@ const App = () => {
       </div>
     );
   };
+
+  // Main render of the App component
   return (
     <main className="container ">
+      {/* Button to add a new product */}
       <Button
         className="block bg-indigo-700 hover:bg-indigo-800 mx-auto my-10 px-10 font-medium "
         onClick={openModal}
@@ -233,9 +262,12 @@ const App = () => {
       >
         ADD PRODUCT
       </Button>
+
+      {/* Displaying a grid of product cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  rounded-md gap-2 md:gap-4 p-2 ">
         {renderProductList}
       </div>
+
       {/* ADD PRODUCT MODAL */}
       <Modal isOpen={isOpen} closeModal={closeModal} title="ADD A NEW PRODUCT">
         <div className="space-y-3">
@@ -254,14 +286,18 @@ const App = () => {
               </span>
             ))}
           </div>
+
+          {/* Dropdown for selecting categories */}
           <Select
             selected={selectedCategories}
             setSelected={setSelectedCategories}
           />
+
           <div className="flex space-x-1 flex-wrap my-4 items-center">
             {renderProductColor}
           </div>
 
+          {/* Form for submitting a new product */}
           <form
             className="flex items-center space-x-3"
             onSubmit={submitHandler}
@@ -283,6 +319,7 @@ const App = () => {
         title="EDIT A PRODUCT"
       >
         <div className="space-y-3">
+          {/* Form for editing a product */}
           <form className="space-y-3" onSubmit={submitEditHandler}>
             {renderProductEditWithErrorMsg("title", "Product Title", "title")}
             {renderProductEditWithErrorMsg(
@@ -296,12 +333,15 @@ const App = () => {
               "imageURL"
             )}
             {renderProductEditWithErrorMsg("price", "Product Price", "price")}
+
+            {/* Dropdown for selecting categories in the edit modal */}
             <Select
               selected={productToEdit.category}
               setSelected={(value) =>
                 setProductToEdit({ ...productToEdit, category: value })
               }
             />
+
             <div className="flex space-x-1 flex-wrap my-4 items-center">
               {renderProductColor}
             </div>
@@ -320,6 +360,7 @@ const App = () => {
               ))}
             </div>
 
+            {/* Buttons for submitting or canceling the edit */}
             <div className="flex items-center space-x-3">
               <Button className="bg-indigo-700 hover:bg-indigo-800">
                 Submit
@@ -334,6 +375,7 @@ const App = () => {
           </form>
         </div>
       </Modal>
+
       {/* DELETE PRODUCT CONFIRM MODAL */}
       <Modal
         isOpen={isOpenConfirmModal}
@@ -342,6 +384,7 @@ const App = () => {
         description="Deleting this product will remove it permanently from your inventory. Any associated data, sales history, and other related information will also be deleted. Please make sure this is the intended action."
       >
         <div className="flex items-center space-x-3">
+          {/* Buttons for confirming or canceling the product removal */}
           <Button
             className="bg-[#c2344d] hover:bg-red-800"
             onClick={removeProductHandler}
@@ -358,6 +401,7 @@ const App = () => {
         </div>
       </Modal>
 
+      {/* Toast notifications component */}
       <Toaster />
     </main>
   );
