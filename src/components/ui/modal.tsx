@@ -5,8 +5,15 @@ interface IProps {
   closeModal: () => void;
   children: ReactNode;
   title?: string;
+  description?: string;
 }
-const Modal = ({ isOpen, closeModal, title, children }: IProps) => {
+const Modal = ({
+  isOpen,
+  closeModal,
+  title,
+  description,
+  children,
+}: IProps) => {
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -23,7 +30,7 @@ const Modal = ({ isOpen, closeModal, title, children }: IProps) => {
             <div className="fixed inset-0 bg-black/25" />
           </Transition.Child>
 
-          <div className="fixed inset-0 overflow-y-auto">
+          <div className="fixed inset-0 backdrop-blur-sm">
             <div className="flex min-h-full items-center justify-center p-4 text-center">
               <Transition.Child
                 as={Fragment}
@@ -42,6 +49,9 @@ const Modal = ({ isOpen, closeModal, title, children }: IProps) => {
                     >
                       {title}
                     </Dialog.Title>
+                  )}
+                  {description && (
+                    <p className="text-sm text-gray-500 mt-3">{description}</p>
                   )}
                   <div className="mt-4">{children}</div>
                 </Dialog.Panel>
