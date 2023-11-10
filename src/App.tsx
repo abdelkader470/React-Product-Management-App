@@ -6,6 +6,7 @@ import { formInputsList, productList } from "./data";
 import { ChangeEvent, useState, FormEvent } from "react";
 import { IProduct } from "./interfaces";
 import { productValidation } from "./validation";
+import ErrorMessage from "./components/ErrorMessage";
 
 const App = () => {
   const defaultProductObj = {
@@ -22,27 +23,45 @@ const App = () => {
   /*---------- STATE---------------*/
   const [isOpen, setIsOpen] = useState(false);
   const [product, setProduct] = useState<IProduct>(defaultProductObj);
+  const [errors, setErrors] = useState({
+    title: "",
+    description: "",
+    imageURL: "",
+    price: "",
+  });
   /*---------- HANDLER---------------*/
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
+
   const onchangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
+
   const onCancel = () => {
     console.log("cancelled");
     setProduct(defaultProductObj);
     closeModal();
   };
+
   const submitHandler = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
+    const { title, description, price, imageURL } = product;
     const errors = productValidation({
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      imageURL: product.imageURL,
+      title,
+      description,
+      price,
+      imageURL,
     });
-    console.log(errors);
+    const hasErrorMsg =
+      Object.values(errors).some((value) => value === "") &&
+      Object.values(errors).every((value) => value === "");
+    if (!hasErrorMsg) {
+      setErrors(errors);
+      return;
+    }
+    console.log("SEND THIS PRODUCT TO OUR SERVER");
   };
 
   /*---------- RENDER---------------*/
@@ -64,6 +83,7 @@ const App = () => {
         value={product[input.name]}
         onChange={onchangeHandler}
       />
+      <ErrorMessage msg={errors[input.name]} />
     </div>
   ));
 
